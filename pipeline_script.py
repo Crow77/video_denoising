@@ -55,12 +55,12 @@ def exec_LiteFlowNet(method, images):
 if __name__ == '__main__':
 	#Initialize the parser
 	parser = argparse.ArgumentParser(
-		description ="Demo en linea para video denoising usando flujo óptico"
+		description ="Online Demo for video denoising using optical flow"
 	)
 
 	#positional/optional parameter
-	parser.add_argument('method', help="Mátodo a ejecutar: PWC_Net/LiteFlowNet")  
-	parser.add_argument('total_img', help="Proporcione imagen1", type = int)
+	parser.add_argument('method', help="Method to be executed: PWC_Net/LiteFlowNet")  
+	parser.add_argument('total_img', help="Amount of images (int)", type = int)
 
 	#Parse the arguments
 	args = parser.parse_args()
