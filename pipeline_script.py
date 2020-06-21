@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
 	list_img = []
 	count = 1
-	#Creating a list with the amount o images passed by parameter 
+	#Creating a list with the amount of images passed by parameter 
 	for x,y in zip(images10_, images11_):
 		if count <= int(args.total_img):
 			list_img.append(x)
