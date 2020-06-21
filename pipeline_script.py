@@ -14,7 +14,7 @@ def exec_PWC_Net(metodo, images):
 
 	flag = True
 
-	with open('{}/10_PWC_Net.txt'.format(CURRENT_DIR), 'w') as f:   #open() works as try-Except
+	with open('{}/10_PWC_Net.txt'.format(CURRENT_DIR), 'w') as f:  
 		for img in images:
 			f.write('{}{} \n'.format('./frames/', img))
 
