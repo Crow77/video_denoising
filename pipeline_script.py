@@ -10,7 +10,7 @@ DATA_DIR = os.path.abspath(os.path.join(CURRENT_DIR, 'frames'))
 def video_denoising():
 	pass
 
-def exec_PWC_Net(metodo, images):
+def exec_PWC_Net(method, images):
 
 	flag = True
 
@@ -35,7 +35,7 @@ def exec_PWC_Net(metodo, images):
 
 
 
-def exec_LiteFlowNet(metodo, images):
+def exec_LiteFlowNet(method, images):
 
 	with open('{}/10_LiteFlowNet.txt'.format(CURRENT_DIR), 'w') as f:
 		for img in images:
