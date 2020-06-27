@@ -20,7 +20,7 @@ def get_frames(video):
 		os.makedirs('frames')
 	else:
 		shutil.rmtree('frames')
-    	os.mkdir('frames')
+    		os.mkdir('frames')
 	
 	if not video.isOpened():
 		print("--Wrong path or video not exist--")
