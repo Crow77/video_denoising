@@ -67,7 +67,7 @@ def gaussian_noise(noise):
 	print('Applying noise...')
 	create_folder('noisy_frames')	
 	for img in sorted(os.listdir(DATA_DIR)):
-		#os.system('export SRAND=$RANDOM; path/to/imgutils-master/awgn {} {}{} {}{}'.format(noise, './frames/',img,'./noisy_frames/',img))
+		#os.system('export SRAND=$RANDOM; path/to/imgutils-master/awgn {} {}{} {}{}'.format(noise, './frames/'=frames_folder, img=frame, './noisy_frames/'=noisiy_framess_folder, img=output_frame))
 		os.system('export SRAND=$RANDOM; ~/imgutils-master/awgn {} {}{} {}{}'.format(noise, './frames/',img,'./noisy_frames/',img))
 		
 
@@ -92,8 +92,8 @@ def exec_PWC_Net(method, images):
 				f.write('{}{}{}\n '.format('./tmp/',img[:-4],'_backward.flo'))
 				flag = True
 	#os.system('.path/to/proc_images 10_PWC_Net.txt 11_PWC_Net.txt out.txt') 
-	os.system('./proc_images 10_PWC_Net.txt 11_PWC_Net.txt out.txt') #run PWC_Net & generate flow. proc_images is the generated binary
-	os.system('python -m flowiz {}{} --outdir {}{}'.format(TMP_FOLDER, '/*.flo', CURRENT_DIR, '/PWC_Netflo_to_pgn/'))    #convert .flo files to .png
+	os.system('./proc_images 10_PWC_Net.txt 11_PWC_Net.txt out.txt') #run PWC_Net & generate flo. proc_images is the generated binary
+	os.system('python -m flowiz {}{} --outdir {}{}'.format(TMP_FOLDER, '/*.flo', CURRENT_DIR, '/PWC_Netflo_to_pgn/'))    #convert from .flo files to .png
 
 
 def exec_LiteFlowNet(method, images):
@@ -107,9 +107,9 @@ def exec_LiteFlowNet(method, images):
 		for img in images:
 			if '_11' == img[6:-4]:
 				f.write('{}{} \n'.format('./noisy_frames/', img))
-	#os.system('.path/to/test_iter 10_LiteFlowNet.txt 11_LiteFlowNet.txt results') 
+	#os.system('.path/to/test_iter 10_LiteFlowNet.txt 11_LiteFlowNet.txt results=output folder where to save the .flo ') 
 	os.system('./test_iter 10_LiteFlowNet.txt 11_LiteFlowNet.txt results') #run LiteFlowNet & generate flow. test_iter is the generated binary
-	os.system('python -m flowiz {}{} --outdir {}{}'.format(RESULTS_FOLDER, '/*.flo', CURRENT_DIR, '/LFNetflo_to_pgn/'))   #convert .flo files to .png	
+	os.system('python -m flowiz {}{} --outdir {}{}'.format(RESULTS_FOLDER, '/*.flo', CURRENT_DIR, '/LFNetflo_to_pgn/'))   #convert from .flo files to .png	
 	
 
 def video_denoising(method, noise, frames):
@@ -123,12 +123,12 @@ def video_denoising(method, noise, frames):
 		img = 0
 		for frame in frames:
 			if flag:
-				#os.system('path/to/rbilf -i {}/{} -f 0 -l 13 -s {} -d {}'.format(NOISY_FRAMES,frame, noise, frame))
+				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, noise, output_denoised_frame))
 				os.system('~/rbilf/build/bin/rbilf -i {}/{} -f 0 -l 13 -s {} -d ./LiteFlowNet_denoised/{}'.format(NOISY_FRAMES,frame, noise, frame))
 				flag = False
 				#img +=1
 			else:
-				#os.system('path/to/rbilf -i {}/{} -f 0 -l 13 -s {} -d {}'.format(NOISY_FRAMES,frame, noise, frame))
+				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, noise, output_denoised_frame))
 				os.system('~/rbilf/build/bin/rbilf -i {}/{} -o {}/{} -f 0 -l 13 -s {} -d ./LiteFlowNet_denoised/{}'.format(NOISY_FRAMES,frame, RESULTS_FOLDER, flo_img[img], noise, frame))
 				flag = True
 				img +=1
@@ -146,12 +146,12 @@ def video_denoising(method, noise, frames):
 		img = 0
 		for frame in frames:
 			if flag:
-				#os.system('path/to/rbilf -i {}/{} -f 0 -l 13 -s {} -d {}'.format(NOISY_FRAMES,frame, noise, frame))
+				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, noise, output_denoised_frame))
 				os.system('~/rbilf/build/bin/rbilf -i {}/{} -f 0 -l 13 -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, noise, frame))
 				flag = False
 				#img +=1
 			else:
-				#os.system('path/to/rbilf -i {}/{} -f 0 -l 13 -s {} -d {}'.format(NOISY_FRAMES,frame, noise, frame))
+				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, tmp_folder, .flo_file, noise, output_denoised_frame))
 				os.system('~/rbilf/build/bin/rbilf -i {}/{} -o {}/{} -f 0 -l 13 -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, TMP_FOLDER, flo_img[img], noise, frame))
 				flag = True
 				img +=1
@@ -168,14 +168,16 @@ def get_difference(method, clean_frames):
 		
 		img = 0
 		for clean_frame, noisy_frame in zip(clean_frames, noisy_frames):
-			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising: $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  #Añadir el out.txt
+			#os.system('path/to/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(path/to/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising: $(path/to/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  
+			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising: $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  
 			img +=1
 	else:
 		create_folder('LiteFlowNet_difference')
 		lft_net_denoised = [image for image in sorted(os.listdir(CURRENT_DIR+'/LiteFlowNet_denoised/'))]
 		img = 0
 		for clean_frame, noisy_frame in zip(clean_frames, noisy_frames):
-			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising: $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  #Añadir el out.txt
+			#os.system('path/to/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(path/to/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising: $(path/to/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  
+			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising: $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  
 			img +=1
 
 
