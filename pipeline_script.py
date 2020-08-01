@@ -28,7 +28,7 @@ def create_folder(folder):
 	
 
 
-def get_frames(video):
+def get_frames(video, numframes):
 
 	video = cv2.VideoCapture('{}{}{}'.format(VIDEO_FOLDER,'/',video))
 	#Create folder to save the frames
@@ -48,19 +48,19 @@ def get_frames(video):
 			break
 		# Saves images
 		if flag:
-			name = './frames/' + str(index) +'_10'+ '.png'
+			name = './frames/' + 'frame_{:03d}'.format(index) + '_10'+ '.png'
 			cv2.imwrite(name, frame)
 			flag = False
 		else:
-			name = './frames/' + str(index) +'_11'+ '.png'
+			name = './frames/' + 'frame_{:03d}'.format(index) +'_11'+ '.png'
 			cv2.imwrite(name, frame)
 			index += 1
 			flag = True
 		
-		#Extracts only 40 frames 
-		if index >= 40:
+		#Extracts only X frames 
+		if index >= numframes:
 			break
-
+	print('Done OK')
 	video.release()
 
 def gaussian_noise(noise):
@@ -70,7 +70,8 @@ def gaussian_noise(noise):
 		#os.system('export SRAND=$RANDOM; path/to/imgutils-master/awgn {} {}{} {}{}'.format(noise, './frames/'=frames_folder, img=frame, './noisy_frames/'=noisiy_framess_folder, img=output_frame))
 		os.system('export SRAND=$RANDOM; ~/imgutils-master/awgn {} {}{} {}{}'.format(noise, './frames/',img,'./noisy_frames/',img))
 		
-
+	print('Done OK')
+	
 def exec_PWC_Net(method, images):
 
 	flag = True
@@ -100,12 +101,12 @@ def exec_LiteFlowNet(method, images):
 	
 	with open('{}/10_LiteFlowNet.txt'.format(CURRENT_DIR), 'w') as f:
 		for img in images:
-			if '_10' == img[6:-4]:
+			if '_10' == img[-7:-4]:  
 				f.write('{}{} \n'.format('./noisy_frames/', img))
 
 	with open('{}/11_LiteFlowNet.txt'.format(CURRENT_DIR), 'w') as f:
 		for img in images:
-			if '_11' == img[6:-4]:
+			if '_11' == img[-7:-4]:
 				f.write('{}{} \n'.format('./noisy_frames/', img))
 	#os.system('.path/to/test_iter 10_LiteFlowNet.txt 11_LiteFlowNet.txt results=output folder where to save the .flo ') 
 	os.system('./test_iter 10_LiteFlowNet.txt 11_LiteFlowNet.txt results') #run LiteFlowNet & generate flow. test_iter is the generated binary
@@ -141,7 +142,7 @@ def video_denoising(method, noise, frames):
 			print("-----Nothing to remove-----") 
 
 		create_folder('PWC_Net_denoised')
-		flo_img = [image for image in sorted(os.listdir(TMP_FOLDER), key=lambda x: int(x[0:6])) if '_backward' in image]   
+		flo_img = [image for image in sorted(os.listdir(TMP_FOLDER), key=lambda x: int(x[6:-16])) if '_backward' in image]   
 		flag = True
 		img = 0
 		for frame in frames:
@@ -155,8 +156,9 @@ def video_denoising(method, noise, frames):
 				os.system('~/rbilf/build/bin/rbilf -i {}/{} -o {}/{} -f 0 -l 13 -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, TMP_FOLDER, flo_img[img], noise, frame))
 				flag = True
 				img +=1
+	print('Done OK')
 
-def get_difference(method, clean_frames):
+def compute_difference(method, clean_frames):
 	print('Computing difference....')
 	noisy_frames = [image for image in sorted(os.listdir(NOISY_FRAMES))]
 	if method == 'PWC_Net':
@@ -180,7 +182,7 @@ def get_difference(method, clean_frames):
 			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising: $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  
 			img +=1
 
-
+	print('Done OK')
 
 if __name__ == '__main__':
 	#Initialize the parser
@@ -189,45 +191,56 @@ if __name__ == '__main__':
 	)
 
 	#positional/optional parameter
-	parser.add_argument('method', help="Method to be executed: PWC_Net/LiteFlowNet")  
-	parser.add_argument('total_img', help="Amount of images (int)", type = int)
-	parser.add_argument('sigma_noise', help="Provide noise (int)", type = int)
+	parser.add_argument('select_method', help="Method to be executed: PWC_Net/LiteFlowNet")  
+	parser.add_argument('frameslfn', help="Amount of images for LiteFlowNet (int)", type = int)
+	parser.add_argument('framespwcnet', help="Amount of images for PWC-Net (int)", type = int)  
+	parser.add_argument('sigmalfn', help="Provide sigma noise for LiteFlowNet (int)", type = int)
+	parser.add_argument('sigmapwcnet', help="Provide sigma noise for PWC-Net (int)", type = int)  
 	parser.add_argument('video', help="Provide a valid video")
 
 	#Parse the arguments
 	args = parser.parse_args()
 
+	#Set varibales for the selected method
+	if args.select_method == 'LiteFlowNet':
+		numframes = args.frameslfn
+		sigma_noise = args.sigmalfn
+	else:
+		numframes = args.framespwcnet
+		sigma_noise = args.sigmapwcnet
+
 	#Get frames
-	get_frames(args.video)
+	get_frames(args.video, numframes)
 
 	#Apply sigma noise
-	gaussian_noise(args.sigma_noise)
+	gaussian_noise(sigma_noise)
 
 	#Get images clasified by tag
-	images10_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[0:-7])) if '_10' in image]
-	images11_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[0:-7])) if '_11' in image]
+	images10_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_10' in image]
+	images11_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_11' in image]
 
 	list_img = []
 	count = 1
+
 	#Creating a list with the amount of images passed by parameter 
 	for x,y in zip(images10_, images11_):
-		if count <= int(args.total_img):
+		if count <= int(numframes):
 			list_img.append(x)
 			list_img.append(y)
 			count += 1
 
 	
 	#Run the optical flow method requested
-	if args.method == 'PWC_Net':
-		exec_PWC_Net(args.method, list(list_img))
-	elif args.method == 'LiteFlowNet':
-		exec_LiteFlowNet(args.method, list(list_img))
+	if args.select_method == 'PWC_Net':
+		exec_PWC_Net(args.select_method, list(list_img))
+	elif args.select_method == 'LiteFlowNet':
+		exec_LiteFlowNet(args.select_method, list(list_img))
 	else:
 		print("Provide a valid method")
 	
 
 	#Apply denoising
-	video_denoising(args.method, args.sigma_noise, list(list_img))
+	video_denoising(args.select_method, sigma_noise, list(list_img))
 
 	#Difference b/w two images (normal and the denoised one)
-	get_difference(args.method, list(list_img))
+	compute_difference(args.select_method, list(list_img))
