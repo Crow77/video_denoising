@@ -57,7 +57,7 @@ def get_frames(video, numframes):
 			index += 1
 			flag = True
 		
-		#Extracts only X frames 
+		#Extracts only X number of frames 
 		if index >= numframes:
 			break
 	print('Done OK')
@@ -91,7 +91,7 @@ def exec_PWC_Net(method, images):
 				flag = False
 			else:
 				f.write('{}{}{}\n '.format('./tmp/',img[:-4],'_backward.flo'))
-				flag = True
+				#flag = True
 	#os.system('.path/to/proc_images 10_PWC_Net.txt 11_PWC_Net.txt out.txt') 
 	os.system('./proc_images 10_PWC_Net.txt 11_PWC_Net.txt out.txt') #run PWC_Net & generate flo. proc_images is the generated binary
 	os.system('python -m flowiz {}{} --outdir {}{}'.format(TMP_FOLDER, '/*.flo', CURRENT_DIR, '/PWC_Netflo_to_pgn/'))    #convert from .flo files to .png
@@ -150,11 +150,11 @@ def video_denoising(method, noise, frames):
 				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, noise, output_denoised_frame))
 				os.system('~/rbilf/build/bin/rbilf -i {}/{} -f 0 -l 13 -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, noise, frame))
 				flag = False
-				#img +=1
+				
 			else:
 				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, tmp_folder, .flo_file, noise, output_denoised_frame))
 				os.system('~/rbilf/build/bin/rbilf -i {}/{} -o {}/{} -f 0 -l 13 -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, TMP_FOLDER, flo_img[img], noise, frame))
-				flag = True
+				#flag = True
 				img +=1
 	print('Done OK')
 
