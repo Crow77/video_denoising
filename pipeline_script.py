@@ -158,9 +158,9 @@ def video_denoising(method, noise, frames):
 				img +=1
 	print('Done OK')
 
-def compute_difference(method, clean_frames):
+def compute_difference(method, noisy_frames):
 	print('Computing difference....')
-	noisy_frames = [image for image in sorted(os.listdir(NOISY_FRAMES))]
+	clean_frames = [image for image in sorted(os.listdir(DATA_DIR))]
 	if method == 'PWC_Net':
 
 		#Create a folder to save the difference b/w
@@ -178,7 +178,7 @@ def compute_difference(method, clean_frames):
 		lft_net_denoised = [image for image in sorted(os.listdir(CURRENT_DIR+'/LiteFlowNet_denoised/'))]
 		img = 0
 		for clean_frame, noisy_frame in zip(clean_frames, noisy_frames):
-			#os.system('path/to/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(path/to/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising: $(path/to/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  
+			#os.system('path/to/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(path/to/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising: $(path/to/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  
 			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising: $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  
 			img +=1
 
