@@ -48,11 +48,11 @@ def get_frames(video, numframes):
 			break
 		# Saves images
 		if flag:
-			name = './frames/' + 'frame_{:03d}'.format(index) + '_10'+ '.png'
+			name = './frames/' + 'frame_{:03d}'.format(index) + '_10' + '.png'
 			cv2.imwrite(name, frame)
 			flag = False
 		else:
-			name = './frames/' + 'frame_{:03d}'.format(index) +'_11'+ '.png'
+			name = './frames/' + 'frame_{:03d}'.format(index) + '_11' + '.png'
 			cv2.imwrite(name, frame)
 			index += 1
 			flag = True
@@ -71,6 +71,25 @@ def gaussian_noise(noise):
 		os.system('export SRAND=$RANDOM; ~/imgutils-master/awgn {} {}{} {}{}'.format(noise, './frames/',img,'./noisy_frames/',img))
 		
 	print('Done OK')
+
+
+def get_noisy_frames():
+	#Get images clasified by tag
+	images10_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_10' in image]
+	images11_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_11' in image]
+
+	list_img = []
+	count = 1
+
+	#Creating a list with the amount of images passed by parameter 
+	for x,y in zip(images10_, images11_):
+		if count <= int(numframes):
+			list_img.append(x)
+			list_img.append(y)
+			count += 1
+
+	return list_img
+
 	
 def exec_PWC_Net(method, images):
 
@@ -170,16 +189,24 @@ def compute_difference(method, noisy_frames):
 		
 		img = 0
 		for clean_frame, noisy_frame in zip(clean_frames, noisy_frames):
-			#os.system('path/to/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(path/to/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising: $(path/to/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  
-			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising: $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  
+			#os.system('path/to/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(path/to/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising:
+			#  $(path/to/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame,
+			#  DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  
+			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./PWC_Net_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> PWC_Net_out.txt "Denoising:\
+				 $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> PWC_Net_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img], clean_frame,\
+					  DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/PWC_Net_denoised/', pwc_net_denoised[img])  )  
 			img +=1
 	else:
 		create_folder('LiteFlowNet_difference')
 		lft_net_denoised = [image for image in sorted(os.listdir(CURRENT_DIR+'/LiteFlowNet_denoised/'))]
 		img = 0
 		for clean_frame, noisy_frame in zip(clean_frames, noisy_frames):
-			#os.system('path/to/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(path/to/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising: $(path/to/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  
-			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising: $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame, DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  
+			#os.system('path/to/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(path/to/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising:
+			#  $(path/to/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame,
+			#  DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  
+			os.system('~/imgutils-master/imdiff {}/{} {}{}{} ./LiteFlowNet_difference/{} & echo "Noisy: $(~/imgutils-master/psnr {}/{} {}/{} )dB" >> LiteFlowNet_out.txt "Denoising:\
+				 $(~/imgutils-master/psnr {}/{} {}{}{})dB" >> LiteFlowNet_out.txt '.format(DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img], clean_frame,\
+					  DATA_DIR, clean_frame, NOISY_FRAMES, noisy_frame, DATA_DIR, clean_frame, CURRENT_DIR, '/LiteFlowNet_denoised/', lft_net_denoised[img])  )  
 			img +=1
 
 	print('Done OK')
@@ -215,20 +242,8 @@ if __name__ == '__main__':
 	#Apply sigma noise
 	gaussian_noise(sigma_noise)
 
-	#Get images clasified by tag
-	images10_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_10' in image]
-	images11_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_11' in image]
-
-	list_img = []
-	count = 1
-
-	#Creating a list with the amount of images passed by parameter 
-	for x,y in zip(images10_, images11_):
-		if count <= int(numframes):
-			list_img.append(x)
-			list_img.append(y)
-			count += 1
-
+	#get noisy frames clasified and sorted
+	list_img = get_noisy_frames()
 	
 	#Run the optical flow method requested
 	if args.select_method == 'PWC_Net':
