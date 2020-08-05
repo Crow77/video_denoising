@@ -74,7 +74,7 @@ def gaussian_noise(noise):
 
 
 def get_noisy_frames():
-	#Get images clasified by tag
+	#Get images classified by tag
 	images10_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_10' in image]
 	images11_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_11' in image]
 
