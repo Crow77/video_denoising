@@ -73,8 +73,9 @@ def gaussian_noise(noise):
 	print('Done OK')
 
 
+#get noisy frames clasified and sorted by tag
 def get_noisy_frames():
-	#Get images classified by tag
+	#Get images clasified by tag
 	images10_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_10' in image]
 	images11_ = [image for image in sorted(os.listdir(NOISY_FRAMES), key=lambda x: int(x[6:-7])) if '_11' in image]
 
@@ -132,7 +133,7 @@ def exec_LiteFlowNet(method, images):
 	os.system('python -m flowiz {}{} --outdir {}{}'.format(RESULTS_FOLDER, '/*.flo', CURRENT_DIR, '/LFNetflo_to_pgn/'))   #convert from .flo files to .png	
 	
 
-def video_denoising(method, noise, frames):
+def video_denoising(method, noise, frames, numframes):
 	print('Denoising...')
 	if method == 'LiteFlowNet':
 		
@@ -144,12 +145,12 @@ def video_denoising(method, noise, frames):
 		for frame in frames:
 			if flag:
 				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, noise, output_denoised_frame))
-				os.system('~/rbilf/build/bin/rbilf -i {}/{} -f 0 -l 13 -s {} -d ./LiteFlowNet_denoised/{}'.format(NOISY_FRAMES,frame, noise, frame))
+				os.system('~/rbilf/build/bin/rbilf -i {}/{} -f 0 -l {} -s {} -d ./LiteFlowNet_denoised/{}'.format(NOISY_FRAMES,frame, numframes-1, noise, frame))
 				flag = False
 				#img +=1
 			else:
 				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, noise, output_denoised_frame))
-				os.system('~/rbilf/build/bin/rbilf -i {}/{} -o {}/{} -f 0 -l 13 -s {} -d ./LiteFlowNet_denoised/{}'.format(NOISY_FRAMES,frame, RESULTS_FOLDER, flo_img[img], noise, frame))
+				os.system('~/rbilf/build/bin/rbilf -i {}/{} -o {}/{} -f 0 -l {} -s {} -d ./LiteFlowNet_denoised/{}'.format(NOISY_FRAMES,frame, RESULTS_FOLDER, flo_img[img], numframes-1, noise, frame))
 				flag = True
 				img +=1
 	else:
@@ -167,12 +168,12 @@ def video_denoising(method, noise, frames):
 		for frame in frames:
 			if flag:
 				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, noise, output_denoised_frame))
-				os.system('~/rbilf/build/bin/rbilf -i {}/{} -f 0 -l 13 -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, noise, frame))
+				os.system('~/rbilf/build/bin/rbilf -i {}/{} -f 0 -l {} -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, numframes-1, noise, frame))
 				flag = False
 				
 			else:
 				#os.system('path/to/rbilf -i {}/{} [-f 0]=first_frame [-l 13]=last_frame -s {} -d {}'.format(NOISY_FRAMES_FOLDER, noisy_frame, tmp_folder, .flo_file, noise, output_denoised_frame))
-				os.system('~/rbilf/build/bin/rbilf -i {}/{} -o {}/{} -f 0 -l 13 -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, TMP_FOLDER, flo_img[img], noise, frame))
+				os.system('~/rbilf/build/bin/rbilf -i {}/{} -o {}/{} -f 0 -l {} -s {} -d ./PWC_Net_denoised/{}'.format(NOISY_FRAMES,frame, TMP_FOLDER, flo_img[img], numframes-1, noise, frame))
 				#flag = True
 				img +=1
 	print('Done OK')
@@ -243,19 +244,19 @@ if __name__ == '__main__':
 	gaussian_noise(sigma_noise)
 
 	#get noisy frames clasified and sorted
-	list_img = get_noisy_frames()
+	list_imgs = get_noisy_frames()
 	
 	#Run the optical flow method requested
 	if args.select_method == 'PWC_Net':
-		exec_PWC_Net(args.select_method, list(list_img))
+		exec_PWC_Net(args.select_method, list(list_imgs))
 	elif args.select_method == 'LiteFlowNet':
-		exec_LiteFlowNet(args.select_method, list(list_img))
+		exec_LiteFlowNet(args.select_method, list(list_imgs))
 	else:
 		print("Provide a valid method")
 	
 
 	#Apply denoising
-	video_denoising(args.select_method, sigma_noise, list(list_img))
+	video_denoising(args.select_method, sigma_noise, list(list_imgs), numframes)
 
 	#Difference b/w two images (normal and the denoised one)
-	compute_difference(args.select_method, list(list_img))
+	compute_difference(args.select_method, list(list_imgs))
