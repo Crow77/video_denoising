@@ -21,7 +21,7 @@ def create_folder(folder):
 		if not os.path.exists(folder):
 			os.makedirs(folder)
 		else:
-			shutil.rmtree(folder)    #deletes directory and all its contents
+			shutil.rmtree(folder)    
 			os.mkdir(folder)
 	except:
 		pass
