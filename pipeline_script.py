@@ -40,11 +40,8 @@ def get_frames(folder):
 	return frames
 
 
-
-
 def png_to_mp4():
 	os.system('ffmpeg -framerate 25 -i "Denoised/frame_%5d.png" "output.mp4"; ffmpeg -framerate 25 -i "input_0/frame_%5d.png" "input_0_frames.mp4"; ffmpeg -framerate 25 -i "noisy_frames/frame_%5d.png" "noisy_video.mp4"; ffmpeg -framerate 25 -i "Difference/frame_%5d.png" "video_difference.mp4"; ffmpeg -framerate 25 -i "flow_to_png/frame_%5d.png" "opticalflow.mp4"')
-
 
 
 def gaussian_noise(noise):
@@ -87,7 +84,6 @@ def compute(previous, current, index, run):
 		os.system('{} {}/{} {}/{} {}/frame_{:05d}_backward.flo'.format(run, 'noisy_frames', current, 'noisy_frames', previous,'optic_flow' , index))
 		
 
-
 def opticalflow_to_png():
 	create_folder('flow_to_png')
 	flo_img = get_opticalFlow_files('optic_flow')
@@ -107,15 +103,11 @@ def rbilf_denoising(method, noise, frames, numframes):
 	for frame in frames:
 		if flag:
 			os.system('rbilf -i {}/{} -f 0 -l {} -s {} -d Denoised/{}'.format('noisy_frames',frame, numframes-1, noise, frame))
-			flag = False
-				
+			flag = False		
 		else:
 			os.system('rbilf -i {}/{} -o {}/{} -f 0 -l {} -s {} -d Denoised/{}'.format('noisy_frames',frame, 'optic_flow', flo_img[img], numframes-1, noise, frame))
 			img +=1
-	
-		
-
-
+			
 
 #Apply Non-Local Kalman denoising
 def non_local_denoising(method, noise, frames, numframes):
@@ -127,15 +119,12 @@ def non_local_denoising(method, noise, frames, numframes):
 	for frame in frames:
 		if flag:
 			os.system('nlkalman-flt -i {}/{} -s {} --flt11="Denoised/{}"'.format('noisy_frames',frame, noise, frame)) 
-			flag = False
-					
+			flag = False					
 		else:				
 			os.system('nlkalman-flt -i {}/{} -o {}/{} -s {} --flt11="Denoised/{}"'.format('noisy_frames',frame, 'optic_flow', flo_img[img], noise, frame)) 
 			img +=1
 
-	
-	
-
+		
 def compute_difference():
 	print('Computing difference....')
 	clean_frames = get_frames('input_0')
